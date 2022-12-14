@@ -3,7 +3,7 @@ use crate::messages::header::message_header::MessageHeader;
 use crate::messages::question::question::Question;
 use std::fmt::{Display, Formatter};
 
-use super::resource_record::resource_record::ResourceRecord;
+use super::{parsing::Reader, resource_record::resource_record::ResourceRecord};
 
 pub struct Message {
     header: MessageHeader,
@@ -14,22 +14,24 @@ pub struct Message {
 }
 
 impl Message {
-    pub fn parse(buf: &mut &[u8]) -> Option<Message> {
-        let header = MessageHeader::parse(buf)?;
+    pub fn parse(buf: &[u8]) -> Option<Message> {
+        let mut reader = Reader::new(buf);
+
+        let header = MessageHeader::parse(&mut reader)?;
         let questions = (0..(header.qd_count))
-            .map(|_| Some(Question::parse(buf)?))
+            .map(|_| Some(Question::parse(&mut reader)?))
             .collect::<Option<Vec<Question>>>()?;
 
         let answer = (0..header.an_count)
-            .map(|_| Some(ResourceRecord::parse(buf)?))
+            .map(|_| Some(ResourceRecord::parse(&mut reader)?))
             .collect::<Option<Vec<ResourceRecord>>>()?;
 
         let authority = (0..header.ns_count)
-            .map(|_| Some(ResourceRecord::parse(buf)?))
+            .map(|_| Some(ResourceRecord::parse(&mut reader)?))
             .collect::<Option<Vec<ResourceRecord>>>()?;
 
         let additional = (0..header.ar_count)
-            .map(|_| Some(ResourceRecord::parse(buf)?))
+            .map(|_| Some(ResourceRecord::parse(&mut reader)?))
             .collect::<Option<Vec<ResourceRecord>>>()?;
 
         Some(Message {

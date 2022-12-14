@@ -1,4 +1,4 @@
-use crate::messages::{parsing::read_u16, serializing::write_u16};
+use crate::messages::{parsing::Reader, serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug)]
@@ -16,8 +16,8 @@ pub struct Flags {
 }
 
 impl Flags {
-    pub fn parse(buf: &mut &[u8]) -> Option<Flags> {
-        let val = read_u16(buf)?;
+    pub fn parse(reader: &mut Reader) -> Option<Flags> {
+        let val = reader.read_u16()?;
         Some(Flags {
             qr: QR::parse(val),
             op_code: OpCode::parse(val),

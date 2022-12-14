@@ -15,7 +15,7 @@ fn main() {
         0x6d, 0x00, 0x00, 0x01, 0x00, 0x01,
     ];
 
-    let message = Message::parse(&mut input_buffer.as_slice()).unwrap();
+    let message = Message::parse(&input_buffer.as_slice()).unwrap();
 
     println!("Message: {message}");
 
@@ -44,7 +44,7 @@ fn main() {
 
     println!("Buf {read:?}");
 
-    let parsed_response = Message::parse(&mut read).unwrap();
+    let parsed_response = Message::parse(&read).unwrap();
 
     println!("Response {parsed_response}");
 

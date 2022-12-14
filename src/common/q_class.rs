@@ -1,4 +1,4 @@
-use crate::messages::{parsing::read_u16, serializing::write_u16};
+use crate::messages::{parsing::Reader, serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
 pub enum QClass {
@@ -13,8 +13,8 @@ pub enum QClass {
 }
 
 impl QClass {
-    pub fn parse(buf: &mut &[u8]) -> Option<QClass> {
-        let num = read_u16(buf)?;
+    pub fn parse(reader: &mut Reader) -> Option<QClass> {
+        let num = reader.read_u16()?;
         Some(match num {
             0 => QClass::Reserved,
             1 => QClass::IN,

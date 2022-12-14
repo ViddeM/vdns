@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::common::rr_type::RRType;
+use crate::{common::rr_type::RRType, messages::parsing::Reader};
 
 pub struct ResourceRecord {
     name: String,
@@ -12,8 +12,11 @@ pub struct ResourceRecord {
 }
 
 impl ResourceRecord {
-    pub fn parse(buf: &mut &[u8]) -> Option<ResourceRecord> {
-        println!("Parsing Resource record from {buf:#?}");
+    pub fn parse(reader: &mut Reader) -> Option<ResourceRecord> {
+        println!(
+            "Parsing Resource record from {:#?}",
+            reader.peek_remaining_bytes()
+        );
 
         None
     }

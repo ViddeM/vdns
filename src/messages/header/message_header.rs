@@ -1,5 +1,5 @@
 use crate::messages::header::flags::Flags;
-use crate::messages::parsing::read_u16;
+use crate::messages::parsing::Reader;
 use crate::{common::formatting::indent_string, messages::serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
@@ -14,14 +14,14 @@ pub struct MessageHeader {
 }
 
 impl MessageHeader {
-    pub fn parse(buf: &mut &[u8]) -> Option<MessageHeader> {
+    pub fn parse(reader: &mut Reader) -> Option<MessageHeader> {
         Some(MessageHeader {
-            id: read_u16(buf)?,
-            flags: Flags::parse(buf)?,
-            qd_count: read_u16(buf)?,
-            an_count: read_u16(buf)?,
-            ns_count: read_u16(buf)?,
-            ar_count: read_u16(buf)?,
+            id: reader.read_u16()?,
+            flags: Flags::parse(reader)?,
+            qd_count: reader.read_u16()?,
+            an_count: reader.read_u16()?,
+            ns_count: reader.read_u16()?,
+            ar_count: reader.read_u16()?,
         })
     }
 

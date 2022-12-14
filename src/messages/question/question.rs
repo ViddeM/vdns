@@ -1,6 +1,6 @@
 use crate::common::q_class::QClass;
 use crate::common::rr_type::RRType;
-use crate::messages::parsing::{read_u8, read_vec};
+use crate::messages::parsing::Reader;
 use crate::messages::serializing::write_u8;
 use std::fmt::{Display, Formatter};
 
@@ -11,25 +11,26 @@ pub struct Question {
 }
 
 impl Question {
-    pub fn parse(buf: &mut &[u8]) -> Option<Question> {
-        let mut length = read_u8(buf)?;
+    pub fn parse(reader: &mut Reader) -> Option<Question> {
+        let mut length = reader.read_u8()?;
         let mut domain: Vec<String> = Vec::new();
         while length > 0 {
             let part =
-                read_vec(buf, length as usize)?
+                reader
+                    .read_vec(length as usize)?
                     .into_iter()
                     .fold(String::new(), |mut s, u| {
                         s.push(u as char);
                         s
                     });
             domain.push(part);
-            length = read_u8(buf)?;
+            length = reader.read_u8()?;
         }
 
         Some(Question {
             q_name: domain,
-            q_type: RRType::parse(buf)?,
-            q_class: QClass::parse(buf)?,
+            q_type: RRType::parse(reader)?,
+            q_class: QClass::parse(reader)?,
         })
     }
 
