@@ -1,4 +1,4 @@
-use crate::messages::parsing::read_u16;
+use crate::messages::{parsing::read_u16, serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug)]
@@ -30,6 +30,46 @@ impl Flags {
             cd: (val >> 4) & 1 == 1,
             r_code: RCode::parse(val),
         })
+    }
+
+    pub fn serialize(self, buf: &mut Vec<u8>) {
+        let mut first_byte = match self.qr {
+            QR::Query => 0u8,
+            QR::Response => 1u8,
+        } << 7u8;
+        first_byte = first_byte
+            | match self.op_code {
+                OpCode::Query => 0,
+                OpCode::IQuery => 1,
+                OpCode::Status => 2,
+                OpCode::Reserved => 3, // 3-15 is reserved, picked one.
+            } << 3u8;
+        first_byte = first_byte
+            | match (self.aa, self.tc, self.rd) {
+                (false, false, false) => 0b000,
+                (false, false, true) => 0b001,
+                (false, true, false) => 0b010,
+                (false, true, true) => 0b011,
+                (true, false, false) => 0b100,
+                (true, false, true) => 0b101,
+                (true, true, false) => 0b110,
+                (true, true, true) => 0b111,
+            };
+
+        let mut second_byte = if self.ra { 1 } else { 0 } << 7u8;
+        // Three zero bits
+        second_byte = second_byte
+            | match self.r_code {
+                RCode::NoError => 0,
+                RCode::FormatError => 1,
+                RCode::ServerFailure => 2,
+                RCode::NameError => 3,
+                RCode::NotImplemented => 4,
+                RCode::Refused => 5,
+                RCode::Reserved => 6, // 6-15 is reserved, picked one.
+            };
+
+        write_u16(buf, ((first_byte as u16) << 8) | second_byte as u16);
     }
 }
 
@@ -121,6 +161,7 @@ impl Display for OpCode {
 }
 
 #[derive(Clone, Debug)]
+#[allow(dead_code)]
 enum RCode {
     NoError,
     FormatError,

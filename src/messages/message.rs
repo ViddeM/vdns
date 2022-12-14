@@ -1,16 +1,51 @@
 use crate::common::formatting::indent_string;
 use crate::messages::header::message_header::MessageHeader;
+use crate::messages::question::question::Question;
 use std::fmt::{Display, Formatter};
+
+use super::resource_record::resource_record::ResourceRecord;
 
 pub struct Message {
     header: MessageHeader,
+    questions: Vec<Question>,
+    answer: Vec<ResourceRecord>,
+    authority: Vec<ResourceRecord>,
+    additional: Vec<ResourceRecord>,
 }
 
 impl Message {
     pub fn parse(buf: &mut &[u8]) -> Option<Message> {
+        let header = MessageHeader::parse(buf)?;
+        let questions = (0..(header.qd_count))
+            .map(|_| Some(Question::parse(buf)?))
+            .collect::<Option<Vec<Question>>>()?;
+
+        let answer = (0..header.an_count)
+            .map(|_| Some(ResourceRecord::parse(buf)?))
+            .collect::<Option<Vec<ResourceRecord>>>()?;
+
+        let authority = (0..header.ns_count)
+            .map(|_| Some(ResourceRecord::parse(buf)?))
+            .collect::<Option<Vec<ResourceRecord>>>()?;
+
+        let additional = (0..header.ar_count)
+            .map(|_| Some(ResourceRecord::parse(buf)?))
+            .collect::<Option<Vec<ResourceRecord>>>()?;
+
         Some(Message {
-            header: MessageHeader::parse(buf)?,
+            header,
+            questions,
+            answer,
+            authority,
+            additional,
         })
+    }
+
+    pub fn serialize<'a>(self, buf: &mut Vec<u8>) {
+        self.header.serialize(buf);
+        for question in self.questions.iter() {
+            question.serialize(buf);
+        }
     }
 }
 
@@ -19,9 +54,19 @@ impl Display for Message {
         write!(
             f,
             "{{
-    Header: {}
+    Header: {},
+    Questions: [
+        {}
+    ]
 }}",
-            indent_string(self.header.to_string())
+            indent_string(self.header.to_string()),
+            indent_string(indent_string(
+                self.questions
+                    .iter()
+                    .map(|q| q.to_string())
+                    .collect::<Vec<String>>()
+                    .join(",\n")
+            ))
         )
     }
 }
