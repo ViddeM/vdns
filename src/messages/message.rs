@@ -17,22 +17,33 @@ impl Message {
     pub fn parse(buf: &[u8]) -> Option<Message> {
         let mut reader = Reader::new(buf);
 
+        println!("Parsing header...");
         let header = MessageHeader::parse(&mut reader)?;
+        println!("Parsed header");
+
+        println!("Parsing {} questions...", header.qd_count);
         let questions = (0..(header.qd_count))
             .map(|_| Some(Question::parse(&mut reader)?))
             .collect::<Option<Vec<Question>>>()?;
+        println!("Parsed questions");
 
+        println!("Parsing {} answers...", header.an_count);
         let answer = (0..header.an_count)
             .map(|_| Some(ResourceRecord::parse(&mut reader)?))
             .collect::<Option<Vec<ResourceRecord>>>()?;
+        println!("Parsed answers");
 
+        println!("Parsing {} authorities...", header.ns_count);
         let authority = (0..header.ns_count)
             .map(|_| Some(ResourceRecord::parse(&mut reader)?))
             .collect::<Option<Vec<ResourceRecord>>>()?;
+        println!("Parsed authorities");
 
+        println!("Parsing {} additionals...", header.ar_count);
         let additional = (0..header.ar_count)
             .map(|_| Some(ResourceRecord::parse(&mut reader)?))
             .collect::<Option<Vec<ResourceRecord>>>()?;
+        println!("Parsed additional");
 
         Some(Message {
             header,

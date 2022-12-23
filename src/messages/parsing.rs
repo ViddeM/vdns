@@ -11,18 +11,14 @@ impl<'a> Reader<'a> {
         }
     }
 
+    pub fn get_index(&self) -> usize {
+        self.index
+    }
+
     pub fn read_u8(&mut self) -> Option<u8> {
         let b = *self.buffer.get(self.index)?;
         self.index = self.index + 1;
         Some(b)
-    }
-
-    pub fn read_u8_at(&mut self, base: usize) -> Option<u8> {
-        if base >= self.buffer.len() {
-            return None;
-        }
-
-        Some(*self.buffer.get(base)?)
     }
 
     pub fn read_u16(&mut self) -> Option<u16> {
@@ -45,27 +41,23 @@ impl<'a> Reader<'a> {
     }
 
     pub fn read_vec(&mut self, len: usize) -> Option<Vec<u8>> {
-        self.read_vec_at(self.index, len)
-    }
-
-    pub fn read_vec_at(&mut self, base: usize, len: usize) -> Option<Vec<u8>> {
-        if base >= self.buffer.len() {
-            return None;
-        }
-
         let mut to_read = len;
-        let readable_length = self.buffer.len() - base;
+        let readable_length = self.buffer.len() - self.index;
         if len > readable_length {
             to_read = readable_length;
         }
 
-        let end = base + to_read;
-        let v = Vec::from(self.buffer.get(base..end)?);
+        let end = self.index + to_read;
+        let v = Vec::from(self.buffer.get(self.index..end)?);
         self.index = end;
         Some(v)
     }
 
     pub fn peek_remaining_bytes(&self) -> &[u8] {
         &self.buffer[self.index..]
+    }
+
+    pub fn set_index(&mut self, new_index: usize) {
+        self.index = new_index;
     }
 }
