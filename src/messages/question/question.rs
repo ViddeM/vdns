@@ -12,6 +12,7 @@ pub struct Question {
 
 impl Question {
     pub fn parse(reader: &mut Reader) -> Option<Question> {
+        // Fix duplicate label parsing at some point.
         let mut length = reader.read_u8()?;
         let mut domain: Vec<String> = Vec::new();
         while length > 0 {

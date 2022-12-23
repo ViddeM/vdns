@@ -1,24 +1,38 @@
-use std::fmt::Display;
+use std::{fmt::Display, time::Duration};
 
-use crate::{common::rr_type::RRType, messages::parsing::Reader};
+use crate::{
+    common::{class::Class, domain_name::DomainName, rr_type::RRType, ttl::TTL},
+    messages::parsing::Reader,
+};
+
+use super::rr_data::RRData;
 
 pub struct ResourceRecord {
-    name: String,
+    name: DomainName,
     record_type: RRType,
-    class: u16,     // TODO:?
-    ttl: u32,       // Time to live in seconds
+    class: Class,
+    ttl: TTL,
     rd_length: u16, // Length of the rdata field
-    rdata: Vec<u8>,
+    rdata: RRData,
 }
 
 impl ResourceRecord {
     pub fn parse(reader: &mut Reader) -> Option<ResourceRecord> {
-        println!(
-            "Parsing Resource record from {:#?}",
-            reader.peek_remaining_bytes()
-        );
+        let name = DomainName::parse(reader)?;
+        let record_type = RRType::parse(reader)?;
+        let class = Class::parse(reader)?;
+        let ttl = TTL::parse(reader)?;
+        let rd_length = reader.read_u16()?;
+        let rdata = RRData::parse(reader, &record_type, rd_length)?;
 
-        None
+        Some(Self {
+            name,
+            record_type,
+            class,
+            ttl,
+            rd_length,
+            rdata,
+        })
     }
 
     pub fn serialize(&self, buf: &mut Vec<u8>) {

@@ -17,6 +17,14 @@ impl<'a> Reader<'a> {
         Some(b)
     }
 
+    pub fn read_u8_at(&mut self, base: usize) -> Option<u8> {
+        if base >= self.buffer.len() {
+            return None;
+        }
+
+        Some(*self.buffer.get(base)?)
+    }
+
     pub fn read_u16(&mut self) -> Option<u16> {
         let [b0, b1] = self.read_array()?;
         Some(u16::from_be_bytes([b0, b1]))
@@ -37,14 +45,22 @@ impl<'a> Reader<'a> {
     }
 
     pub fn read_vec(&mut self, len: usize) -> Option<Vec<u8>> {
+        self.read_vec_at(self.index, len)
+    }
+
+    pub fn read_vec_at(&mut self, base: usize, len: usize) -> Option<Vec<u8>> {
+        if base >= self.buffer.len() {
+            return None;
+        }
+
         let mut to_read = len;
-        let readable_length = self.buffer.len() - self.index;
+        let readable_length = self.buffer.len() - base;
         if len > readable_length {
             to_read = readable_length;
         }
 
-        let end = self.index + to_read;
-        let v = Vec::from(self.buffer.get(self.index..end)?);
+        let end = base + to_read;
+        let v = Vec::from(self.buffer.get(base..end)?);
         self.index = end;
         Some(v)
     }
