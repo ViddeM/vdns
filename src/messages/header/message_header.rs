@@ -1,6 +1,7 @@
 use crate::messages::header::flags::Flags;
 use crate::messages::parsing::Reader;
 use crate::{common::formatting::indent_string, messages::serializing::write_u16};
+use rand::Rng;
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug)]
@@ -32,6 +33,17 @@ impl MessageHeader {
         write_u16(buf, self.an_count);
         write_u16(buf, self.ns_count);
         write_u16(buf, self.ar_count);
+    }
+
+    pub fn new() -> Self {
+        Self {
+            id: rand::thread_rng().gen(),
+            flags: Flags::new(),
+            qd_count: 1,
+            an_count: 0,
+            ns_count: 0,
+            ar_count: 0,
+        }
     }
 }
 

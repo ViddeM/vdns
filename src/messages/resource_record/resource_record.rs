@@ -51,8 +51,7 @@ impl Display for ResourceRecord {
     ttl: {},
     data_length: {},
     data: {}
-}}
-            ",
+}}",
             self.name, self.record_type, self.class, self.ttl, self.rd_length, self.rdata
         )
     }

@@ -1,4 +1,4 @@
-use crate::common::formatting::indent_string;
+use crate::common::{formatting::indent_string, rr_type::RRType};
 use crate::messages::header::message_header::MessageHeader;
 use crate::messages::question::question::Question;
 use std::fmt::{Display, Formatter};
@@ -50,6 +50,16 @@ impl Message {
             question.serialize(buf);
         }
     }
+
+    pub fn new_query(name: &str, record_type: RRType) -> Self {
+        Self {
+            header: MessageHeader::new(),
+            questions: vec![Question::new(name, record_type)],
+            answer: vec![],
+            authority: vec![],
+            additional: vec![],
+        }
+    }
 }
 
 impl Display for Message {
@@ -58,40 +68,76 @@ impl Display for Message {
             f,
             "{{
     Header: {},
-    Questions: [{}],
-    Answers: [{}],
-    Authority: [{}],
-    Additional: [{}]
+    Questions: {},
+    Answers: {},
+    Authority: {},
+    Additional: {}
 }}",
             indent_string(self.header.to_string()),
-            indent_string(indent_string(
-                self.questions
-                    .iter()
-                    .map(|q| format!("\n{q}"))
-                    .collect::<Vec<String>>()
-                    .join(",\n")
-            )),
-            indent_string(indent_string(
-                self.answer
-                    .iter()
-                    .map(|a| format!("\n{a}"))
-                    .collect::<Vec<String>>()
-                    .join(",\n")
-            )),
-            indent_string(indent_string(
-                self.authority
-                    .iter()
-                    .map(|a| format!("\n{a}"))
-                    .collect::<Vec<String>>()
-                    .join(",\n")
-            )),
-            indent_string(indent_string(
-                self.additional
-                    .iter()
-                    .map(|a| format!("\n{a}"))
-                    .collect::<Vec<String>>()
-                    .join(",\n")
-            )),
+            if self.questions.is_empty() {
+                "[]".to_string()
+            } else {
+                format!(
+                    "[
+        {}
+    ]",
+                    indent_string(indent_string(
+                        self.questions
+                            .iter()
+                            .map(|q| q.to_string())
+                            .collect::<Vec<String>>()
+                            .join(",\n"),
+                    ))
+                )
+            },
+            if self.answer.is_empty() {
+                "[]".to_string()
+            } else {
+                format!(
+                    "[
+        {}
+    ]",
+                    indent_string(indent_string(
+                        self.answer
+                            .iter()
+                            .map(|a| a.to_string())
+                            .collect::<Vec<String>>()
+                            .join(",\n")
+                    ))
+                )
+            },
+            if self.authority.is_empty() {
+                "[]".to_string()
+            } else {
+                format!(
+                    "[
+        {}
+    ]",
+                    indent_string(indent_string(
+                        self.authority
+                            .iter()
+                            .map(|a| a.to_string())
+                            .collect::<Vec<String>>()
+                            .join(",\n")
+                    ))
+                )
+            },
+            if self.additional.is_empty() {
+                "[]".to_string()
+            } else {
+                format!(
+                    "[
+        {}
+    ]",
+                    indent_string(indent_string(
+                        self.additional
+                            .iter()
+                            .map(|a| a.to_string())
+                            .collect::<Vec<String>>()
+                            .join(",\n")
+                    ))
+                )
+            },
         )
     }
 }

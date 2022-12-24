@@ -14,6 +14,12 @@ impl DomainName {
 
         Some(DomainName { parts })
     }
+
+    pub fn from_string(name: &str) -> Self {
+        Self {
+            parts: name.split(".").map(|s| s.to_string()).collect(),
+        }
+    }
 }
 
 impl Display for DomainName {

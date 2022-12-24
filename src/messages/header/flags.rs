@@ -71,6 +71,21 @@ impl Flags {
 
         write_u16(buf, ((first_byte as u16) << 8) | second_byte as u16);
     }
+
+    pub fn new() -> Self {
+        Self {
+            qr: QR::Query,
+            op_code: OpCode::Query,
+            aa: false,
+            tc: false,
+            rd: true,
+            ra: false,
+            z: 0,
+            ad: false,
+            cd: false,
+            r_code: RCode::NoError,
+        }
+    }
 }
 
 impl Display for Flags {
@@ -152,8 +167,8 @@ impl OpCode {
 impl Display for OpCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            OpCode::Query => write!(f, "Query"),
-            OpCode::IQuery => write!(f, "IQuery"),
+            OpCode::Query => write!(f, "Standard Query"),
+            OpCode::IQuery => write!(f, "Inverse Query"),
             OpCode::Status => write!(f, "Status"),
             OpCode::Reserved => write!(f, "Reserved"),
         }

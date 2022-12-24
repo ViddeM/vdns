@@ -33,6 +33,14 @@ impl Question {
         self.q_type.serialize(buf);
         self.q_class.serialize(buf);
     }
+
+    pub fn new(name: &str, requested_type: RRType) -> Self {
+        Self {
+            q_name: DomainName::from_string(name),
+            q_type: requested_type,
+            q_class: QClass::IN,
+        }
+    }
 }
 
 impl Display for Question {
