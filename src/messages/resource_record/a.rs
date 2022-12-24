@@ -1,16 +1,16 @@
-use std::fmt::Display;
+use std::{fmt::Display, net::Ipv4Addr};
 
-use crate::{common::ip_address::IPV4Address, messages::parsing::Reader};
+use crate::messages::parsing::Reader;
 
 #[derive(Debug, Clone)]
 pub struct A {
-    address: IPV4Address,
+    address: Ipv4Addr,
 }
 
 impl A {
     pub fn parse(reader: &mut Reader) -> Option<Self> {
         Some(A {
-            address: IPV4Address::parse(reader)?,
+            address: Ipv4Addr::from(reader.read_u32()?),
         })
     }
 }

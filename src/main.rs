@@ -1,5 +1,7 @@
 use std::net::{SocketAddr, UdpSocket};
 
+use common::resolvconf::read_nameserver;
+
 use crate::{common::rr_type::RRType, messages::message::Message};
 
 pub mod common;
@@ -24,9 +26,13 @@ fn lookup(name: &str, rr_type: RRType) -> Message {
         .expect("Failed to bind to port");
     socket.set_read_timeout(None).unwrap();
 
+    let nameserver = *read_nameserver()
+        .expect("Failed to read nameservers file!")
+        .first()
+        .unwrap();
     socket
-        .connect(SocketAddr::from(([192, 168, 1, 1], DNS_PORT)))
-        .expect("Failed to connect to remote host");
+        .connect(SocketAddr::from((nameserver, DNS_PORT)))
+        .expect("Failed to connect to nameserver");
 
     socket
         .send(buffer.as_slice())
