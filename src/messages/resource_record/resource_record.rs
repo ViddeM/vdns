@@ -1,4 +1,4 @@
-use std::{fmt::Display, time::Duration};
+use std::fmt::Display;
 
 use crate::{
     common::{class::Class, domain_name::DomainName, rr_type::RRType, ttl::TTL},
@@ -42,6 +42,18 @@ impl ResourceRecord {
 
 impl Display for ResourceRecord {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!("Display not implemented")
+        write!(
+            f,
+            "{{
+    name: {},
+    record_type: {},
+    class: {},
+    ttl: {},
+    data_length: {},
+    data: {}
+}}
+            ",
+            self.name, self.record_type, self.class, self.ttl, self.rd_length, self.rdata
+        )
     }
 }

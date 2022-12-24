@@ -10,7 +10,7 @@ pub enum TTL {
 
 impl TTL {
     pub fn parse(reader: &mut Reader) -> Option<TTL> {
-        let seconds = reader.read_u16()?;
+        let seconds = reader.read_u32()?;
         Some(match seconds {
             0 => TTL::NoCache,
             val => TTL::Cache(Duration::from_secs(val as u64)),
