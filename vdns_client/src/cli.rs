@@ -1,8 +1,7 @@
 use std::net::IpAddr;
 
 use clap::Parser;
-
-use crate::common::rr_type::RRType;
+use vdns_lib::common::rr_type::RRType;
 
 /// Program to perform DNS lookups
 #[derive(Parser, Debug)]

@@ -3,6 +3,14 @@ name = "vdns"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "vdns_lib"
+path = "vdns_lib/src/lib.rs"
+
+[[bin]]
+name = "vdns_client"
+path = "vdns_client/src/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
