@@ -318,3 +318,17 @@ impl Display for RRType {
         write!(f, "{:?}", self)
     }
 }
+
+impl From<&str> for RRType {
+    fn from(value: &str) -> Self {
+        match value.to_lowercase().as_str() {
+            "a" => Self::A,
+            "aaaa" => Self::AAAA,
+            "all" => Self::All,
+            "cname" => Self::CNAME,
+            "mx" => Self::MX,
+            "txt" => Self::TXT,
+            other => panic!("Unsupported resource record type {other}"),
+        }
+    }
+}

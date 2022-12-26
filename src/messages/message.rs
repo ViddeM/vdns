@@ -51,9 +51,9 @@ impl Message {
         }
     }
 
-    pub fn new_query(name: &str, record_type: RRType) -> Self {
+    pub fn new_query(name: &str, record_type: RRType, recurse: bool) -> Self {
         Self {
-            header: MessageHeader::new(),
+            header: MessageHeader::new(recurse),
             questions: vec![Question::new(name, record_type)],
             answer: vec![],
             authority: vec![],

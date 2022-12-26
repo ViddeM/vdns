@@ -35,10 +35,10 @@ impl MessageHeader {
         write_u16(buf, self.ar_count);
     }
 
-    pub fn new() -> Self {
+    pub fn new(recurse: bool) -> Self {
         Self {
             id: rand::thread_rng().gen(),
-            flags: Flags::new(),
+            flags: Flags::new(recurse),
             qd_count: 1,
             an_count: 0,
             ns_count: 0,

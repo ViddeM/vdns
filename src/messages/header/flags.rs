@@ -72,13 +72,13 @@ impl Flags {
         write_u16(buf, ((first_byte as u16) << 8) | second_byte as u16);
     }
 
-    pub fn new() -> Self {
+    pub fn new(recurse: bool) -> Self {
         Self {
             qr: QR::Query,
             op_code: OpCode::Query,
             aa: false,
             tc: false,
-            rd: true,
+            rd: recurse,
             ra: false,
             z: 0,
             ad: false,

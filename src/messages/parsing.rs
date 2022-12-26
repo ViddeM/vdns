@@ -31,6 +31,24 @@ impl<'a> Reader<'a> {
         Some(u32::from_be_bytes([b0, b1, b2, b3]))
     }
 
+    pub fn read_u64(&mut self) -> Option<u64> {
+        let [b0, b1, b2, b3, b4, b5, b6, b7] = self.read_array()?;
+        Some(u64::from_be_bytes([b0, b1, b2, b3, b4, b5, b6, b7]))
+    }
+
+    pub fn read_u128(&mut self) -> Option<u128> {
+        let [b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15] =
+            self.read_array()?;
+        Some(u128::from_be_bytes([
+            b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15,
+        ]))
+    }
+
+    pub fn read_string(&mut self, len: usize) -> Option<String> {
+        let bytes = self.read_vec(len)?;
+        String::from_utf8(bytes).ok()
+    }
+
     pub fn read_array<const LEN: usize>(&mut self) -> Option<[u8; LEN]> {
         let mut arr = [0u8; LEN];
         let end = self.index + LEN;
