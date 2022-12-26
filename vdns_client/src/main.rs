@@ -8,9 +8,6 @@ use crate::cli::CLI;
 
 pub mod cli;
 
-const DNS_PORT: u16 = 53;
-const SEND_FROM_PORT: u16 = 9315;
-
 fn main() {
     let args = CLI::parse();
 
