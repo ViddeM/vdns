@@ -20,7 +20,17 @@ impl DomainName {
     pub fn serialize(&self, writer: &mut Writer) {
         // TODO: Handle when length is more than 6 bits
         // TODO: Maybe use pointers...
-        for part in self.parts.iter() {
+        for (index, part) in self.parts.iter().enumerate() {
+            let remaining_parts = self.parts.as_slice()[index..].to_vec().join(".");
+            if let Some(ind) = writer.lookup_label(&remaining_parts) {
+                let goto = (ind as u16) | 0b1100_0000_0000_0000;
+                writer.write_u16(goto);
+                // Pointers always end domain names
+                return;
+            }
+
+            writer.track_label(remaining_parts);
+
             let len = part.len() as u8;
             let truncated = len & MASK;
             if truncated != len {

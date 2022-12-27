@@ -58,10 +58,8 @@ pub fn main() {
             // Send the response
             let serialized = response.serialize();
 
-            // println!("Serialized as: {buf:0x?}");
-
             // Try to parse it to ensure that it looks alright
-            Message::parse(&serialized).expect("Failed to parse message to send!!!");
+            // Message::parse(&serialized).expect("Failed to parse message to send!!!");
 
             socket
                 .send_to(&serialized, remote_addr)

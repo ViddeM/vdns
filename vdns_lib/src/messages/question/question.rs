@@ -30,14 +30,7 @@ impl Question {
     }
 
     pub fn serialize(&self, writer: &mut Writer) {
-        for label in self.q_name.parts.iter() {
-            let bytes = label.as_bytes();
-            writer.write_u8(bytes.len() as u8); // YOLO, shouldn't be more than a byte... Right?
-            for &byte in bytes {
-                writer.write_u8(byte);
-            }
-        }
-        writer.write_u8(0); // Write 0 length label to signal that there are no more labels.
+        self.q_name.serialize(writer);
         self.q_type.serialize(writer);
         self.q_class.serialize(writer);
     }
