@@ -1,24 +1,27 @@
-use crate::messages::{parsing::Reader, serializing::write_u16};
+use crate::{
+    common::parse_error::ParseResult,
+    messages::{parsing::Reader, serializing::write_u16},
+};
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone, Debug)]
 pub struct Flags {
-    qr: QR,          // 1 bit
-    op_code: OpCode, // 4 bits
-    aa: bool,        // 1 bit
-    tc: bool,        // 1 bit
-    rd: bool,        // 1 bit
-    ra: bool,        // 1 bit
-    z: u8,           // Reserved, must be 0, 1 bit.
-    ad: bool,        // 1 bit
-    cd: bool,        // 1 bit
-    r_code: RCode,   // 4 bits
+    pub qr: QR,          // 1 bit
+    pub op_code: OpCode, // 4 bits
+    pub aa: bool,        // 1 bit
+    pub tc: bool,        // 1 bit
+    pub rd: bool,        // 1 bit
+    pub ra: bool,        // 1 bit
+    pub z: u8,           // Reserved, must be 0, 1 bit.
+    pub ad: bool,        // 1 bit
+    pub cd: bool,        // 1 bit
+    pub r_code: RCode,   // 4 bits
 }
 
 impl Flags {
-    pub fn parse(reader: &mut Reader) -> Option<Flags> {
+    pub fn parse(reader: &mut Reader) -> ParseResult<Flags> {
         let val = reader.read_u16()?;
-        Some(Flags {
+        Ok(Flags {
             qr: QR::parse(val),
             op_code: OpCode::parse(val),
             aa: (val >> 10) & 1 == 1,
@@ -72,7 +75,7 @@ impl Flags {
         write_u16(buf, ((first_byte as u16) << 8) | second_byte as u16);
     }
 
-    pub fn new(recurse: bool) -> Self {
+    pub fn new_query(recurse: bool) -> Self {
         Self {
             qr: QR::Query,
             op_code: OpCode::Query,
@@ -85,6 +88,32 @@ impl Flags {
             cd: false,
             r_code: RCode::NoError,
         }
+    }
+
+    pub fn new_response(query_flags: &Flags) -> Self {
+        Self {
+            qr: QR::Response,
+            op_code: query_flags.op_code.clone(),
+            aa: false, // TODO: Set this?
+            tc: false,
+            rd: query_flags.rd,
+            ra: true, // We support recursion!
+            z: 0,
+            ad: false,
+            cd: false,
+            r_code: RCode::NoError, // Maybe want to set this differently later on...
+        }
+    }
+
+    pub fn is_query(&self) -> bool {
+        match self.qr {
+            QR::Query => true,
+            QR::Response => false,
+        }
+    }
+
+    pub fn recurse(&self) -> bool {
+        return self.rd;
     }
 }
 
@@ -119,7 +148,7 @@ impl Display for Flags {
 }
 
 #[derive(Clone, Debug)]
-enum QR {
+pub enum QR {
     Query,
     Response,
 }
@@ -145,7 +174,7 @@ impl Display for QR {
 }
 
 #[derive(Clone, Debug)]
-enum OpCode {
+pub enum OpCode {
     Query,
     IQuery,
     Status,
@@ -175,9 +204,8 @@ impl Display for OpCode {
     }
 }
 
-#[derive(Clone, Debug)]
-#[allow(dead_code)]
-enum RCode {
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RCode {
     NoError,
     FormatError,
     ServerFailure,

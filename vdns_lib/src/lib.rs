@@ -5,7 +5,7 @@ use crate::{common::rr_type::RRType, messages::message::Message};
 pub mod common;
 pub mod messages;
 
-const DNS_PORT: u16 = 53;
+pub const DNS_PORT: u16 = 53;
 const SEND_FROM_PORT: u16 = 9315;
 
 pub fn lookup(name: &str, rr_type: RRType, nameserver: IpAddr, recurse: bool) -> Message {

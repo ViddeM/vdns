@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
 use crate::{
-    common::{domain_name::DomainName, rr_type::RRType},
-    messages::parsing::Reader,
+    common::{domain_name::DomainName, parse_error::ParseResult, rr_type::RRType},
+    messages::{parsing::Reader, serializing::write_u8},
 };
 
 use super::{a::A, aaaa::AAAA, soa::SOA};
@@ -17,8 +17,8 @@ pub enum RRData {
 }
 
 impl RRData {
-    pub fn parse(reader: &mut Reader, rr_type: &RRType, length: u16) -> Option<RRData> {
-        Some(match rr_type {
+    pub fn parse(reader: &mut Reader, rr_type: &RRType, length: u16) -> ParseResult<RRData> {
+        Ok(match rr_type {
             RRType::CNAME => RRData::CNAME(DomainName::parse(reader)?),
             RRType::A => RRData::A(A::parse(reader)?),
             RRType::AAAA => RRData::AAAA(AAAA::parse(reader)?),
@@ -26,6 +26,16 @@ impl RRData {
             RRType::TXT => RRData::TXT(reader.read_string(length as usize)?),
             t => todo!("Data for RRType {t} is not yet implemented!"),
         })
+    }
+
+    pub fn serialize(&self, buf: &mut Vec<u8>) {
+        match self {
+            RRData::CNAME(name) => name.serialize(buf),
+            RRData::A(a) => a.serialize(buf),
+            RRData::AAAA(aaaa) => aaaa.serialize(buf),
+            RRData::SOA(soa) => soa.serialize(buf),
+            RRData::TXT(txt) => txt.as_bytes().iter().for_each(|b| write_u8(buf, *b)),
+        }
     }
 }
 

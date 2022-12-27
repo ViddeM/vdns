@@ -1,6 +1,9 @@
 use std::{fmt::Display, net::Ipv6Addr};
 
-use crate::messages::parsing::Reader;
+use crate::{
+    common::parse_error::ParseResult,
+    messages::{parsing::Reader, serializing::write_u8},
+};
 
 #[derive(Debug, Clone)]
 pub struct AAAA {
@@ -8,10 +11,16 @@ pub struct AAAA {
 }
 
 impl AAAA {
-    pub fn parse(reader: &mut Reader) -> Option<Self> {
-        Some(AAAA {
+    pub fn parse(reader: &mut Reader) -> ParseResult<Self> {
+        Ok(AAAA {
             address: Ipv6Addr::from(reader.read_u128()?),
         })
+    }
+
+    pub fn serialize(&self, buf: &mut Vec<u8>) {
+        for b in self.address.octets().iter() {
+            write_u8(buf, *b);
+        }
     }
 }
 

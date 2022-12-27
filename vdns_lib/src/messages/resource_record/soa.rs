@@ -1,6 +1,9 @@
 use std::fmt::Display;
 
-use crate::{common::domain_name::DomainName, messages::parsing::Reader};
+use crate::{
+    common::{domain_name::DomainName, parse_error::ParseResult},
+    messages::{parsing::Reader, serializing::write_u32},
+};
 
 #[derive(Debug, Clone)]
 pub struct SOA {
@@ -14,8 +17,8 @@ pub struct SOA {
 }
 
 impl SOA {
-    pub fn parse(reader: &mut Reader) -> Option<Self> {
-        Some(SOA {
+    pub fn parse(reader: &mut Reader) -> ParseResult<Self> {
+        Ok(SOA {
             m_name: DomainName::parse(reader)?,
             r_name: DomainName::parse(reader)?,
             serial: reader.read_u32()?,
@@ -24,6 +27,16 @@ impl SOA {
             expire: reader.read_u32()?,
             minimum: reader.read_u32()?,
         })
+    }
+
+    pub fn serialize(&self, buf: &mut Vec<u8>) {
+        self.m_name.serialize(buf);
+        self.r_name.serialize(buf);
+        write_u32(buf, self.serial);
+        write_u32(buf, self.refresh);
+        write_u32(buf, self.retry);
+        write_u32(buf, self.expire);
+        write_u32(buf, self.minimum);
     }
 }
 

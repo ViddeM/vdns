@@ -1,8 +1,10 @@
 use crate::messages::{parsing::Reader, serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
+use super::parse_error::ParseResult;
+
 // Taken from: https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RRType {
     Zero,
     A,
@@ -103,9 +105,9 @@ pub enum RRType {
 }
 
 impl RRType {
-    pub fn parse(reader: &mut Reader) -> Option<RRType> {
+    pub fn parse(reader: &mut Reader) -> ParseResult<RRType> {
         let val = reader.read_u16()?;
-        Some(match val {
+        Ok(match val {
             0 => RRType::Reserved,
             1 => RRType::A,
             2 => RRType::NS,

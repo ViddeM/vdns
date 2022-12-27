@@ -1,6 +1,9 @@
 use crate::messages::{parsing::Reader, serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
+use super::parse_error::ParseResult;
+
+#[derive(Debug, Clone)]
 pub enum QClass {
     Reserved,
     IN, // Internet
@@ -13,9 +16,9 @@ pub enum QClass {
 }
 
 impl QClass {
-    pub fn parse(reader: &mut Reader) -> Option<QClass> {
+    pub fn parse(reader: &mut Reader) -> ParseResult<QClass> {
         let num = reader.read_u16()?;
-        Some(match num {
+        Ok(match num {
             0 => QClass::Reserved,
             1 => QClass::IN,
             2 => QClass::Unassigned,

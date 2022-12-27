@@ -1,6 +1,8 @@
 use crate::messages::{parsing::Reader, serializing::write_u16};
 use std::fmt::{Display, Formatter};
 
+use super::parse_error::ParseResult;
+
 pub enum Class {
     Reserved,
     IN, // Internet
@@ -11,9 +13,9 @@ pub enum Class {
 }
 
 impl Class {
-    pub fn parse(reader: &mut Reader) -> Option<Self> {
+    pub fn parse(reader: &mut Reader) -> ParseResult<Self> {
         let num = reader.read_u16()?;
-        Some(match num {
+        Ok(match num {
             0 => Class::Reserved,
             1 => Class::IN,
             2 => Class::CS,

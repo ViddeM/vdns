@@ -1,8 +1,13 @@
 use std::fmt::Display;
 
 use crate::{
-    common::{class::Class, domain_name::DomainName, rr_type::RRType, ttl::TTL},
-    messages::parsing::Reader,
+    common::{
+        class::Class, domain_name::DomainName, parse_error::ParseResult, rr_type::RRType, ttl::TTL,
+    },
+    messages::{
+        parsing::Reader,
+        serializing::{write_u16, write_u8},
+    },
 };
 
 use super::rr_data::RRData;
@@ -17,7 +22,7 @@ pub struct ResourceRecord {
 }
 
 impl ResourceRecord {
-    pub fn parse(reader: &mut Reader) -> Option<ResourceRecord> {
+    pub fn parse(reader: &mut Reader) -> ParseResult<ResourceRecord> {
         let name = DomainName::parse(reader)?;
         let record_type = RRType::parse(reader)?;
         let class = Class::parse(reader)?;
@@ -25,7 +30,7 @@ impl ResourceRecord {
         let rd_length = reader.read_u16()?;
         let rdata = RRData::parse(reader, &record_type, rd_length)?;
 
-        Some(Self {
+        Ok(Self {
             name,
             record_type,
             class,
@@ -36,7 +41,18 @@ impl ResourceRecord {
     }
 
     pub fn serialize(&self, buf: &mut Vec<u8>) {
-        todo!("Eeerh not done");
+        self.name.serialize(buf);
+        self.record_type.serialize(buf);
+        self.class.serialize(buf);
+        self.ttl.serialize(buf);
+
+        let mut tmp_buf = vec![];
+        self.rdata.serialize(&mut tmp_buf);
+        write_u16(buf, tmp_buf.len() as u16);
+
+        for b in tmp_buf.into_iter() {
+            write_u8(buf, b);
+        }
     }
 }
 

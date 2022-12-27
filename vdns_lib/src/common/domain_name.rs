@@ -1,6 +1,8 @@
 use std::fmt::Display;
 
-use crate::messages::parsing::Reader;
+use crate::messages::{parsing::Reader, serializing::write_u8};
+
+use super::parse_error::{ParseError, ParseResult};
 
 #[derive(Debug, Clone)]
 pub struct DomainName {
@@ -9,10 +11,28 @@ pub struct DomainName {
 
 const MASK: u8 = 0b0011_1111;
 impl DomainName {
-    pub fn parse(reader: &mut Reader) -> Option<DomainName> {
+    pub fn parse(reader: &mut Reader) -> ParseResult<DomainName> {
         let parts = parse_parts(reader)?;
 
-        Some(DomainName { parts })
+        Ok(DomainName { parts })
+    }
+
+    pub fn serialize(&self, buf: &mut Vec<u8>) {
+        // TODO: Handle when length is more than 6 bits
+        // TODO: Maybe use pointers...
+        for part in self.parts.iter() {
+            let len = part.len() as u8;
+            let truncated = len & MASK;
+            if truncated != len {
+                panic!("Length of label was too long!");
+            }
+            write_u8(buf, truncated);
+            for b in part.as_bytes() {
+                write_u8(buf, *b);
+            }
+        }
+        // End with an empty len
+        write_u8(buf, 0);
     }
 
     pub fn from_string(name: &str) -> Self {
@@ -28,7 +48,7 @@ impl Display for DomainName {
     }
 }
 
-fn parse_parts(reader: &mut Reader) -> Option<Vec<String>> {
+fn parse_parts(reader: &mut Reader) -> ParseResult<Vec<String>> {
     let mut parts = vec![];
 
     loop {
@@ -53,18 +73,24 @@ fn parse_parts(reader: &mut Reader) -> Option<Vec<String>> {
                 parts.append(&mut parse_parts(reader)?);
                 reader.set_index(old_index);
                 // Always ends after pointer
-                return Some(parts);
+                return Ok(parts);
             }
             bits => {
-                println!("Invalid name part prefix {bits:0b}");
-                return None;
+                return Err(ParseError::DomainNameError(format!(
+                    "Got invalid name part prefix {bits:0b}, expected label (00) or pointer (11) | currently have parts '{}'", parts.join(", ")
+                )));
             }
         }
     }
 
-    Some(parts)
+    Ok(parts)
 }
 
-fn parse_label(reader: &mut Reader, length: u8) -> Option<String> {
-    String::from_utf8(reader.read_vec(length as usize)?).ok()
+fn parse_label(reader: &mut Reader, length: u8) -> ParseResult<String> {
+    let bytes = reader.read_vec(length as usize)?;
+    Ok(
+        String::from_utf8(bytes.clone()).or(Err(ParseError::DomainNameError(format!(
+            "Failed to parse domain name part {bytes:?} to utf8 string"
+        ))))?,
+    )
 }
