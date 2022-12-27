@@ -2,7 +2,7 @@ use crate::common::parse_error::{ParseError, ParseResult};
 use crate::common::rr_type::RRType;
 use crate::common::{domain_name::DomainName, q_class::QClass};
 use crate::messages::parsing::Reader;
-use crate::messages::serializing::write_u8;
+use crate::messages::serializing::Writer;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone)]
@@ -29,17 +29,17 @@ impl Question {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         for label in self.q_name.parts.iter() {
             let bytes = label.as_bytes();
-            write_u8(buf, bytes.len() as u8); // YOLO, shouldn't be more than a byte... Right?
+            writer.write_u8(bytes.len() as u8); // YOLO, shouldn't be more than a byte... Right?
             for &byte in bytes {
-                write_u8(buf, byte);
+                writer.write_u8(byte);
             }
         }
-        write_u8(buf, 0); // Write 0 length label to signal that there are no more labels.
-        self.q_type.serialize(buf);
-        self.q_class.serialize(buf);
+        writer.write_u8(0); // Write 0 length label to signal that there are no more labels.
+        self.q_type.serialize(writer);
+        self.q_class.serialize(writer);
     }
 
     pub fn new(name: &str, requested_type: RRType) -> Self {

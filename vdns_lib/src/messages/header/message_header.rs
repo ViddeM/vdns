@@ -1,7 +1,8 @@
-use crate::common::parse_error::{ParseError, ParseResult};
+use crate::common::formatting::indent_string;
+use crate::common::parse_error::ParseResult;
 use crate::messages::header::flags::Flags;
 use crate::messages::parsing::Reader;
-use crate::{common::formatting::indent_string, messages::serializing::write_u16};
+use crate::messages::serializing::Writer;
 use rand::Rng;
 use std::fmt::{Display, Formatter};
 
@@ -27,13 +28,14 @@ impl MessageHeader {
         })
     }
 
-    pub fn serialize(self, buf: &mut Vec<u8>) {
-        write_u16(buf, self.id);
-        self.flags.serialize(buf);
-        write_u16(buf, self.qd_count);
-        write_u16(buf, self.an_count);
-        write_u16(buf, self.ns_count);
-        write_u16(buf, self.ar_count);
+    pub fn serialize(self, writer: &mut Writer) {
+        writer.write_u16(self.id);
+        self.flags.serialize(writer);
+
+        writer.write_u16(self.qd_count);
+        writer.write_u16(self.an_count);
+        writer.write_u16(self.ns_count);
+        writer.write_u16(self.ar_count);
     }
 
     pub fn new_query(recurse: bool) -> Self {

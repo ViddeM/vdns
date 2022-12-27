@@ -1,6 +1,6 @@
 use crate::{
     common::parse_error::ParseResult,
-    messages::{parsing::Reader, serializing::write_u16},
+    messages::{parsing::Reader, serializing::Writer},
 };
 use std::fmt::{Display, Formatter};
 
@@ -35,7 +35,7 @@ impl Flags {
         })
     }
 
-    pub fn serialize(self, buf: &mut Vec<u8>) {
+    pub fn serialize(self, writer: &mut Writer) {
         let mut first_byte = match self.qr {
             QR::Query => 0u8,
             QR::Response => 1u8,
@@ -72,7 +72,7 @@ impl Flags {
                 RCode::Reserved => 6, // 6-15 is reserved, picked one.
             };
 
-        write_u16(buf, ((first_byte as u16) << 8) | second_byte as u16);
+        writer.write_u16(((first_byte as u16) << 8) | second_byte as u16);
     }
 
     pub fn new_query(recurse: bool) -> Self {

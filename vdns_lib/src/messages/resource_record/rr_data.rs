@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::{
     common::{domain_name::DomainName, parse_error::ParseResult, rr_type::RRType},
-    messages::{parsing::Reader, serializing::write_u8},
+    messages::{parsing::Reader, serializing::Writer},
 };
 
 use super::{a::A, aaaa::AAAA, soa::SOA};
@@ -28,13 +28,13 @@ impl RRData {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         match self {
-            RRData::CNAME(name) => name.serialize(buf),
-            RRData::A(a) => a.serialize(buf),
-            RRData::AAAA(aaaa) => aaaa.serialize(buf),
-            RRData::SOA(soa) => soa.serialize(buf),
-            RRData::TXT(txt) => txt.as_bytes().iter().for_each(|b| write_u8(buf, *b)),
+            RRData::CNAME(name) => name.serialize(writer),
+            RRData::A(a) => a.serialize(writer),
+            RRData::AAAA(aaaa) => aaaa.serialize(writer),
+            RRData::SOA(soa) => soa.serialize(writer),
+            RRData::TXT(txt) => txt.as_bytes().iter().for_each(|b| writer.write_u8(*b)),
         }
     }
 }

@@ -4,10 +4,7 @@ use crate::{
     common::{
         class::Class, domain_name::DomainName, parse_error::ParseResult, rr_type::RRType, ttl::TTL,
     },
-    messages::{
-        parsing::Reader,
-        serializing::{write_u16, write_u8},
-    },
+    messages::{parsing::Reader, serializing::Writer},
 };
 
 use super::rr_data::RRData;
@@ -40,19 +37,17 @@ impl ResourceRecord {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
-        self.name.serialize(buf);
-        self.record_type.serialize(buf);
-        self.class.serialize(buf);
-        self.ttl.serialize(buf);
+    pub fn serialize(&self, writer: &mut Writer) {
+        self.name.serialize(writer);
+        self.record_type.serialize(writer);
+        self.class.serialize(writer);
+        self.ttl.serialize(writer);
 
-        let mut tmp_buf = vec![];
-        self.rdata.serialize(&mut tmp_buf);
-        write_u16(buf, tmp_buf.len() as u16);
+        let mut inner_writer = Writer::new();
+        self.rdata.serialize(&mut inner_writer);
 
-        for b in tmp_buf.into_iter() {
-            write_u8(buf, b);
-        }
+        writer.write_u16(inner_writer.len() as u16);
+        writer.merge(&mut inner_writer);
     }
 }
 

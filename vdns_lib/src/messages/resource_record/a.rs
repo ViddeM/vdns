@@ -2,7 +2,7 @@ use std::{fmt::Display, net::Ipv4Addr};
 
 use crate::{
     common::parse_error::ParseResult,
-    messages::{parsing::Reader, serializing::write_u8},
+    messages::{parsing::Reader, serializing::Writer},
 };
 
 #[derive(Debug, Clone)]
@@ -17,9 +17,9 @@ impl A {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         for b in self.address.octets().iter() {
-            write_u8(buf, *b);
+            writer.write_u8(*b);
         }
     }
 }

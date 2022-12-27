@@ -1,4 +1,4 @@
-use crate::messages::{parsing::Reader, serializing::write_u16};
+use crate::messages::{parsing::Reader, serializing::Writer};
 use std::fmt::{Display, Formatter};
 
 use super::parse_error::ParseResult;
@@ -33,7 +33,7 @@ impl QClass {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         let val: u16 = match self {
             QClass::Reserved => 0,
             QClass::IN => 1,
@@ -45,7 +45,7 @@ impl QClass {
             QClass::PrivateUse => 65280,
         };
 
-        write_u16(buf, val);
+        writer.write_u16(val);
     }
 }
 

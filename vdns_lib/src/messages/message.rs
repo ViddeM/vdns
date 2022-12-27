@@ -5,6 +5,7 @@ use crate::messages::header::message_header::MessageHeader;
 use crate::messages::question::question::Question;
 use std::fmt::{Display, Formatter};
 
+use super::serializing::Writer;
 use super::{parsing::Reader, resource_record::resource_record::ResourceRecord};
 
 pub struct Message {
@@ -62,20 +63,24 @@ impl Message {
         })
     }
 
-    pub fn serialize<'a>(self, buf: &mut Vec<u8>) {
-        self.header.serialize(buf);
+    pub fn serialize<'a>(self) -> Vec<u8> {
+        let mut writer = Writer::new();
+
+        self.header.serialize(&mut writer);
         for question in self.questions.iter() {
-            question.serialize(buf);
+            question.serialize(&mut writer);
         }
         for answer in self.answer.iter() {
-            answer.serialize(buf);
+            answer.serialize(&mut writer);
         }
         for authority in self.authority.iter() {
-            authority.serialize(buf);
+            authority.serialize(&mut writer);
         }
         for additional in self.additional.iter() {
-            additional.serialize(buf);
+            additional.serialize(&mut writer);
         }
+
+        writer.get_serialized_message()
     }
 
     pub fn new_query(name: &str, record_type: RRType, recurse: bool) -> Self {

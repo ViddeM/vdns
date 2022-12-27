@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::messages::{parsing::Reader, serializing::write_u8};
+use crate::messages::{parsing::Reader, serializing::Writer};
 
 use super::parse_error::{ParseError, ParseResult};
 
@@ -17,7 +17,7 @@ impl DomainName {
         Ok(DomainName { parts })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         // TODO: Handle when length is more than 6 bits
         // TODO: Maybe use pointers...
         for part in self.parts.iter() {
@@ -26,13 +26,13 @@ impl DomainName {
             if truncated != len {
                 panic!("Length of label was too long!");
             }
-            write_u8(buf, truncated);
+            writer.write_u8(truncated);
             for b in part.as_bytes() {
-                write_u8(buf, *b);
+                writer.write_u8(*b);
             }
         }
         // End with an empty len
-        write_u8(buf, 0);
+        writer.write_u8(0);
     }
 
     pub fn from_string(name: &str) -> Self {

@@ -1,6 +1,6 @@
 use std::{fmt::Display, time::Duration};
 
-use crate::messages::parsing::Reader;
+use crate::messages::{parsing::Reader, serializing::Writer};
 
 use super::parse_error::ParseResult;
 
@@ -19,16 +19,16 @@ impl TTL {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         let val = match self {
             TTL::NoCache => 0,
             TTL::Cache(duration) => duration.as_secs() as u32,
         };
         let [b1, b2, b3, b4] = val.to_be_bytes();
-        buf.push(b1);
-        buf.push(b2);
-        buf.push(b3);
-        buf.push(b4);
+        writer.write_u8(b1);
+        writer.write_u8(b2);
+        writer.write_u8(b3);
+        writer.write_u8(b4);
     }
 }
 

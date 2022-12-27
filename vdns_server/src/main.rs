@@ -56,16 +56,15 @@ pub fn main() {
             println!("Responding with \n======\n{response}\n======\n");
 
             // Send the response
-            let mut buf = vec![];
-            response.serialize(&mut buf);
+            let serialized = response.serialize();
 
             // println!("Serialized as: {buf:0x?}");
 
             // Try to parse it to ensure that it looks alright
-            Message::parse(&buf).expect("Failed to parse message to send!!!");
+            Message::parse(&serialized).expect("Failed to parse message to send!!!");
 
             socket
-                .send_to(&buf, remote_addr)
+                .send_to(&serialized, remote_addr)
                 .expect("Failed to send response!");
         } else {
             println!("Received non-query request? \n======\n{message}\n======\n");

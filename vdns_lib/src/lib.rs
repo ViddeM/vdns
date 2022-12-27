@@ -11,8 +11,7 @@ const SEND_FROM_PORT: u16 = 9315;
 pub fn lookup(name: &str, rr_type: RRType, nameserver: IpAddr, recurse: bool) -> Message {
     let message = Message::new_query(name, rr_type, recurse);
 
-    let mut buffer = vec![];
-    message.serialize(&mut buffer);
+    let buffer = message.serialize();
 
     // Send the message
     let socket = UdpSocket::bind(SocketAddr::from(([0, 0, 0, 0], SEND_FROM_PORT)))

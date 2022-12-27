@@ -1,4 +1,4 @@
-use crate::messages::{parsing::Reader, serializing::write_u16};
+use crate::messages::{parsing::Reader, serializing::Writer};
 use std::fmt::{Display, Formatter};
 
 use super::parse_error::ParseResult;
@@ -28,7 +28,7 @@ impl Class {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
+    pub fn serialize(&self, writer: &mut Writer) {
         let val: u16 = match self {
             Class::Reserved => 0,
             Class::IN => 1,
@@ -38,7 +38,7 @@ impl Class {
             Class::Unassigned => 5,
         };
 
-        write_u16(buf, val);
+        writer.write_u16(val);
     }
 }
 

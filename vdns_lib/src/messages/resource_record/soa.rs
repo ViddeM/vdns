@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use crate::{
     common::{domain_name::DomainName, parse_error::ParseResult},
-    messages::{parsing::Reader, serializing::write_u32},
+    messages::{parsing::Reader, serializing::Writer},
 };
 
 #[derive(Debug, Clone)]
@@ -29,14 +29,14 @@ impl SOA {
         })
     }
 
-    pub fn serialize(&self, buf: &mut Vec<u8>) {
-        self.m_name.serialize(buf);
-        self.r_name.serialize(buf);
-        write_u32(buf, self.serial);
-        write_u32(buf, self.refresh);
-        write_u32(buf, self.retry);
-        write_u32(buf, self.expire);
-        write_u32(buf, self.minimum);
+    pub fn serialize(&self, writer: &mut Writer) {
+        self.m_name.serialize(writer);
+        self.r_name.serialize(writer);
+        writer.write_u32(self.serial);
+        writer.write_u32(self.refresh);
+        writer.write_u32(self.retry);
+        writer.write_u32(self.expire);
+        writer.write_u32(self.minimum);
     }
 }
 
