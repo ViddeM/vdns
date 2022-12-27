@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::common::domain_name::DomainName;
-
 pub struct Writer {
     buffer: Vec<u8>,
     labels: HashMap<String, usize>,

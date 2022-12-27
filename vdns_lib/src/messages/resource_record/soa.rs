@@ -1,11 +1,13 @@
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     common::{domain_name::DomainName, parse_error::ParseResult},
     messages::{parsing::Reader, serializing::Writer},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SOA {
     m_name: DomainName,
     r_name: DomainName,

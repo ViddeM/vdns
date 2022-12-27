@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 use crate::messages::{parsing::Reader, serializing::Writer};
 use std::fmt::{Display, Formatter};
 
 use super::parse_error::ParseResult;
 
 // Taken from: https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-4
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RRType {
     Zero,
     A,

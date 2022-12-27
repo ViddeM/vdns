@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     common::{domain_name::DomainName, parse_error::ParseResult, rr_type::RRType},
     messages::{parsing::Reader, serializing::Writer},
@@ -7,7 +9,7 @@ use crate::{
 
 use super::{a::A, aaaa::AAAA, soa::SOA};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RRData {
     CNAME(DomainName),
     A(A),

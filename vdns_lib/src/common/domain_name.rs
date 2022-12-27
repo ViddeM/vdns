@@ -1,10 +1,12 @@
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
+
 use crate::messages::{parsing::Reader, serializing::Writer};
 
 use super::parse_error::{ParseError, ParseResult};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DomainName {
     pub parts: Vec<String>,
 }

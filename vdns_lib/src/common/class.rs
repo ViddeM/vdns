@@ -1,8 +1,11 @@
+use serde::{Deserialize, Serialize};
+
 use crate::messages::{parsing::Reader, serializing::Writer};
 use std::fmt::{Display, Formatter};
 
 use super::parse_error::ParseResult;
 
+#[derive(Serialize, Deserialize)]
 pub enum Class {
     Reserved,
     IN, // Internet

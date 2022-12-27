@@ -1,11 +1,13 @@
 use std::{fmt::Display, net::Ipv4Addr};
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     common::parse_error::ParseResult,
     messages::{parsing::Reader, serializing::Writer},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct A {
     address: Ipv4Addr,
 }

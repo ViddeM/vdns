@@ -1,10 +1,12 @@
 use std::{fmt::Display, time::Duration};
 
+use serde::{Deserialize, Serialize};
+
 use crate::messages::{parsing::Reader, serializing::Writer};
 
 use super::parse_error::ParseResult;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TTL {
     NoCache, // The request should not be cached
     Cache(Duration),
@@ -29,6 +31,13 @@ impl TTL {
         writer.write_u8(b2);
         writer.write_u8(b3);
         writer.write_u8(b4);
+    }
+
+    pub fn seconds_until_expiration(&self) -> usize {
+        match self {
+            TTL::NoCache => 0,
+            TTL::Cache(seconds) => seconds.as_secs() as usize,
+        }
     }
 }
 

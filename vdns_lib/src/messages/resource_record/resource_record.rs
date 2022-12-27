@@ -1,4 +1,6 @@
-use std::fmt::Display;
+use std::{fmt::Display, time::Duration};
+
+use serde::{Deserialize, Serialize};
 
 use crate::{
     common::{
@@ -9,6 +11,7 @@ use crate::{
 
 use super::rr_data::RRData;
 
+#[derive(Serialize, Deserialize)]
 pub struct ResourceRecord {
     name: DomainName,
     record_type: RRType,
@@ -48,6 +51,18 @@ impl ResourceRecord {
 
         writer.write_u16(inner_writer.len() as u16);
         writer.merge(&mut inner_writer);
+    }
+
+    pub fn get_query_name_type(&self) -> (DomainName, RRType) {
+        (self.name.clone(), self.record_type.clone())
+    }
+
+    pub fn seconds_until_expiration(&self) -> usize {
+        self.ttl.seconds_until_expiration()
+    }
+
+    pub fn set_ttl(&mut self, seconds: usize) {
+        self.ttl = TTL::Cache(Duration::from_secs(seconds as u64));
     }
 }
 

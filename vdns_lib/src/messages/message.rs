@@ -124,6 +124,15 @@ impl Message {
             additional: additional,
         }
     }
+
+    pub fn to_short_string(&self) -> String {
+        if let Some(question) = self.questions.first() {
+            let (name, rr_type) = question.get_query_name_type();
+            format!("{rr_type} records on domain {name}",)
+        } else {
+            format!("No questions received :(")
+        }
+    }
 }
 
 impl Display for Message {
